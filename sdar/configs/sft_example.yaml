@@ -1,0 +1,54 @@
+### SDAR full-finetune SFT config (LlamaFactory).
+### Copy and edit for your run. NEVER commit credentials here.
+
+### model — must point to your assembled SDAR model dir (see README).
+model_name_or_path: ./model/SDAR-8B-Chat
+train_from_scratch: false
+trust_remote_code: true
+
+### method
+stage: sft
+do_train: true
+finetuning_type: full
+freeze_vision_tower: true
+freeze_multi_modal_projector: false
+freeze_language_model: true
+deepspeed: examples/deepspeed/ds_z3_config.json
+use_dft_loss: false
+
+### dataset — `dataset` is a key into LlamaFactory's data registry; register
+### your dataset in <SDAR>/training/llama_factory_sdar/data/dataset_info.json.
+### template must be the model's chat template (qwen3 for SDAR-8B-Chat).
+dataset: my_dataset
+template: qwen3
+block_length: 4              # must match SDAR architecture (commonly 4)
+cutoff_len: 16384
+truncate_mode: drop          # drop|cut — drop preserves fixed shapes for FlexAttention
+overwrite_cache: false
+tokenized_path: ./tokenized_cache/my_dataset
+preprocessing_num_workers: 32
+dataloader_num_workers: 4
+neat_packing: true           # required for SDAR FlexAttention
+
+### output
+output_dir: ./outputs/sdar_sft
+logging_steps: 1
+save_steps: 500
+save_total_limit: 5
+plot_loss: true
+overwrite_output_dir: true
+save_only_model: false
+report_to: none              # set to "wandb" if WANDB_API_KEY is set in .env
+
+### train
+run_name: sdar_sft
+include_effective_tokens_per_second: true
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 8
+learning_rate: 1.0e-5
+num_train_epochs: 1.0
+lr_scheduler_type: constant_with_warmup
+warmup_ratio: 0.03
+bf16: true
+ddp_timeout: 180000000
+resume_from_checkpoint: null
