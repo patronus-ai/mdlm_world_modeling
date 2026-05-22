@@ -2,6 +2,8 @@
 
 SFT + GRPO training for AppWorld using a World Model for rollout simulation.
 
+**Note**: The local responder is **completely optional**. It provides deterministic responses for AppWorld API calls that can be validated locally, reducing WM inference calls. To disable it, set `APPWORLD_WM_GUARD=0` (enabled by default). See the "Local Responder (Optional)" section below.
+
 ## Setup
 
 ```bash
@@ -46,6 +48,22 @@ bash run_qwen_sft.sh
 # 2. GRPO (set MODEL_PATH to SFT checkpoint)
 MODEL_PATH=output/appworld_qwen3_sft/checkpoint-32 bash run_qwen_grpo.sh
 ```
+
+## Local Responder (Optional)
+
+The local responder is **completely optional**. It validates and returns deterministic JSON responses for AppWorld API calls that can be resolved locally (tool validation, authentication, data filtering/pagination), reducing WM inference calls and preventing hallucination.
+
+**To disable the local responder**:
+```bash
+export APPWORLD_WM_GUARD=0
+```
+
+Or inline in training scripts:
+```bash
+APPWORLD_WM_GUARD=0 bash run_qwen_grpo.sh
+```
+
+When disabled (`APPWORLD_WM_GUARD=0`), all actions are sent to the World Model for responses. The local responder is enabled by default (`APPWORLD_WM_GUARD=1`).
 
 ## Files
 

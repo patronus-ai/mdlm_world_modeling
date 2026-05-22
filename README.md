@@ -169,11 +169,17 @@ All three environments use the same architecture:
 
 ```
 Agent (ms-swift GRPO)  ──action──>  Plugin
-                                      ├── local responder  (deterministic, ~85% of actions)
+                                      ├── local responder  (deterministic, ~85% of actions (optional - worth ablation))
                                       └── WM proxy :30000  ──>  lmdeploy :30001  (SDAR WM)
                                                                       ↑
                                                              SDAR_world_model
 ```
+
+**Note**: The local responder is **completely optional**. It handles deterministic actions locally to reduce WM inference calls (~85% speedup for ALFWorld), but can be disabled by setting environment variables:
+- ALFWorld: `ALFWORLD_WM_GUARD=0`
+- AppWorld: `APPWORLD_WM_GUARD=0`
+
+When disabled, all actions are sent directly to the World Model.
 
 The real environment is used **only for evaluation**, never during training. Reward is computed from trajectory structure (no live env access).
 

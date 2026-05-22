@@ -5,6 +5,8 @@ training loop talks to the **SDAR World Model** (`ANONYMOUS/SDAR_world_model_v2`
 via HTTP, while a deterministic local responder handles cases the WM doesn't
 need to predict. The real `AlfredTWEnv` is reserved for evaluation only.
 
+**Note**: The local responder is **completely optional** and can be disabled by setting `ALFWORLD_WM_GUARD=0`. When disabled, all actions are sent to the World Model instead of being handled locally. See the "Local Responder (Optional)" section below for details.
+
 ## Architecture
 
 ```
@@ -20,6 +22,22 @@ TRAINING                                    EVALUATION
 
 Reward is computed by `check_goal_satisfied()` from the trajectory itself —
 no real-env access during training.
+
+## Local Responder (Optional)
+
+The local responder is **completely optional**. It provides deterministic responses for ~85% of actions (navigation, inventory, object manipulation) without calling the World Model, which speeds up training and reduces hallucination.
+
+**To disable the local responder**:
+```bash
+export ALFWORLD_WM_GUARD=0
+```
+
+Or add it to your `.env` file or inline in training scripts:
+```bash
+ALFWORLD_WM_GUARD=0 bash run_lfm25_grpo.sh
+```
+
+When disabled (`ALFWORLD_WM_GUARD=0`), all actions are sent to the World Model for responses. The local responder is enabled by default (`ALFWORLD_WM_GUARD=1`).
 
 ## 1. Hardware & disk
 
